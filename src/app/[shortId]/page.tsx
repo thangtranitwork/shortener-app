@@ -1,15 +1,17 @@
 import { redirect } from "next/navigation";
 import PasswordProtected from "@/components/PasswordProtected";
-import { urlStore } from "@/app/api/shorten/route"; // Import urlStore từ file API
+import { urlStore } from "@/app/data";
+import { log } from "console";
 
 export default async function RedirectPage({
   params,
 }: {
-  params: Promise<{ shortId: string }>; // `params` là Promise
+  params: Promise<{ shortId: string }>; 
 }) {
-  const unwrappedParams = await params; // Unwrap `params`
+  const unwrappedParams = await params; 
   const { shortId } = unwrappedParams;
   const url = urlStore[shortId];
+  log(urlStore);
   if (!url) {
     return (
       <div className="min-h-screen flex items-center justify-center">

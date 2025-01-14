@@ -1,9 +1,7 @@
 // src/app/api/shorten/route.ts
 import { nanoid } from "nanoid";
 import bcrypt from "bcryptjs";
-
-// Object tĩnh lưu trữ URL và mật khẩu
-export const urlStore: Record<string, { originalUrl: string; password?: string }> = {};
+import { urlStore } from "@/app/data";
 
 export async function POST(req: Request) {
   try {

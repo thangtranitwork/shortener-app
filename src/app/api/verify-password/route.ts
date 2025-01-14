@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { urlStore } from "@/app/api/shorten/route"; // Import object `urlStore`
+import { urlStore } from "@/app/data"; // Import object `urlStore`
 
 export async function POST(request: Request) {
   try {
