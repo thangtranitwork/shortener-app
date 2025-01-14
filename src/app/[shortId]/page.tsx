@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import connectDB from "@/lib/mongo";
 import Url from "@/models/Url";
+import PasswordProtected from "@/components/PasswordProtected";
 
 export default async function RedirectPage({
   params,
@@ -24,16 +25,9 @@ export default async function RedirectPage({
     );
   }
 
-  if (url.password) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Password Protected</h1>
-          <p>This URL requires a password to access.</p>
-        </div>
-      </div>
-    );
-  }
+if (url.password) {
+  return <PasswordProtected shortId={shortId} />;
+}
 
   redirect(url.originalUrl);
 }
