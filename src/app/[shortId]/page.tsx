@@ -1,15 +1,17 @@
 import { redirect } from "next/navigation";
 import connectDB from "@/lib/mongo";
 import Url from "@/models/Url";
-import PasswordProtected from "@/components/PasswordProtected";
 
 export default async function RedirectPage({
   params,
 }: {
-  params: { shortId: string };
+  params: Promise<{ shortId: string }>; // `params` là Promise
 }) {
+  const unwrappedParams = await params; // Unwrap `params`
+  const { shortId } = unwrappedParams;
+
   await connectDB();
-  const url = await Url.findOne({ shortId: params.shortId });
+  const url = await Url.findOne({ shortId });
 
   if (!url) {
     return (
@@ -23,7 +25,14 @@ export default async function RedirectPage({
   }
 
   if (url.password) {
-    return <PasswordProtected shortId={params.shortId} />;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Password Protected</h1>
+          <p>This URL requires a password to access.</p>
+        </div>
+      </div>
+    );
   }
 
   redirect(url.originalUrl);
