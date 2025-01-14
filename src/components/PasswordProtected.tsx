@@ -30,7 +30,6 @@ export default function PasswordProtected({ shortId }: { shortId: string }) {
       // Redirect to the original URL if password is correct
       window.location.href = data.originalUrl;
     } catch (err: any) {
-      console.log(err);
       setError(err.message);
     }
   };

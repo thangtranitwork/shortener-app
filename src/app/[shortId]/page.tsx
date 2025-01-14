@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
-import connectDB from "@/lib/mongo";
-import Url from "@/models/Url";
 import PasswordProtected from "@/components/PasswordProtected";
+import { urlStore } from "@/app/api/shorten/route"; // Import urlStore từ file API
 
 export default async function RedirectPage({
   params,
@@ -10,10 +9,7 @@ export default async function RedirectPage({
 }) {
   const unwrappedParams = await params; // Unwrap `params`
   const { shortId } = unwrappedParams;
-
-  await connectDB();
-  const url = await Url.findOne({ shortId });
-
+  const url = urlStore[shortId];
   if (!url) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -25,9 +21,9 @@ export default async function RedirectPage({
     );
   }
 
-if (url.password) {
-  return <PasswordProtected shortId={shortId} />;
-}
+  if (url.password) {
+    return <PasswordProtected shortId={shortId} />;
+  }
 
   redirect(url.originalUrl);
 }

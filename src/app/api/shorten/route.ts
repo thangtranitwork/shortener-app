@@ -1,54 +1,50 @@
-import { NextResponse } from "next/server";
+// src/app/api/shorten/route.ts
 import { nanoid } from "nanoid";
 import bcrypt from "bcryptjs";
-import connectDB from "@/lib/mongo"; // Sửa lại đường dẫn
-import Url from "@/models/Url"; // Sửa lại đường dẫn
+
+// Object tĩnh lưu trữ URL và mật khẩu
+export const urlStore: Record<string, { originalUrl: string; password?: string }> = {};
 
 export async function POST(req: Request) {
-  
   try {
     const { url, alias, password } = await req.json();
 
     if (!url) {
-      return NextResponse.json({ error: "URL is required" }, { status: 400 });
+      return new Response(JSON.stringify({ error: "URL is required" }), {
+        status: 400,
+      });
     }
-    await connectDB();
 
     // Kiểm tra alias nếu được cung cấp
-    if (alias) {
-      const existingUrl = await Url.findOne({ alias });
-      if (existingUrl) {
-        return NextResponse.json(
-          { error: "Alias already exists" },
-          { status: 400 }
-        );
-      }
+    if (alias && urlStore[alias]) {
+      return new Response(JSON.stringify({ error: "Alias already exists" }), {
+        status: 400,
+      });
     }
 
     const shortId = alias || nanoid(8);
-    let hashedPassword = null;
+    let hashedPassword = undefined;
 
     if (password) {
       hashedPassword = await bcrypt.hash(password, 10);
     }
 
-    const newUrl = await Url.create({
+    // Lưu trữ URL vào object tĩnh
+    urlStore[shortId] = {
       originalUrl: url,
-      shortId,
-      alias: alias || undefined,
       password: hashedPassword,
-    });
+    };
 
-    return NextResponse.json({
-      shortUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/${shortId}`,
-    });
+    return new Response(
+      JSON.stringify({
+        shortUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/${shortId}`,
+      }),
+      { status: 200 }
+    );
   } catch (error: any) {
-    console.error("Detailed error:", error);
-    return NextResponse.json(
-      {
-        error: "Server error",
-        message: error.message,
-      },
+    console.error("Error:", error);
+    return new Response(
+      JSON.stringify({ error: "Server error", message: error.message }),
       { status: 500 }
     );
   }
